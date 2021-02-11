@@ -3,8 +3,6 @@ import socket
 import sys
 import os
 
-print(sys.argv[1])
-
 try:
     # get a pathname variable from second argument of program
     pathname = sys.argv[1]
@@ -22,13 +20,18 @@ try:
     print("Creating socket with pathname: %s" % pathname)
     s.listen(1)
 
+    conn, client = None, None
+
     # waiting for incoming client
+    print("\nWaiting for connection...")
     while True:
         # accepting incoming client
-        conn, client = s.accept()
+        if (not conn and not client):
+            conn, client = s.accept()
+            print("Connected to client.")
 
         data = conn.recv(1024)
-        print("Getting data from client: %s" % data)
+        print("Getting data from client: %s" % data.decode("utf-8"))
 
 # in case the arguments is not valid
 except IndexError:
@@ -38,3 +41,4 @@ except IndexError:
 # exiting program by keyboard input
 except KeyboardInterrupt:
     print("Shutting down server.")
+    conn.close()
