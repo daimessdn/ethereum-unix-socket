@@ -22,29 +22,28 @@ tx_file = open("transaction_input.json", )
 tx_json = json.load(tx_file)
 tx_file.close()
 
-# transcation using Ethereum
-## get transaction count
-transaction_count = web3.eth.getTransactionCount(sender_address)
+print(tx_json)
 
-# # get gas price
-# print(web3.eth.gasPrice)
+# # transcation using Ethereum
+# ## get transaction count
+# transaction_count = web3.eth.getTransactionCount(sender_address)
 
-# create transactions
-transactions = []
+# # create transactions
+# transactions = []
 
-for index, item in enumerate(tx_json):
-    transactions.append({
-        "nonce": transaction_count + index,
-        "to": item["to_address"],
-        "value": int(item["amount"], 0),
-        "gas": 200000,
-        "gasPrice": web3.toWei(20, "gwei")
-    })
+# for index, item in enumerate(tx_json):
+#     transactions.append({
+#         "nonce": web3.eth.getTransactionCount(sender_address)
+#         "to": item["to_address"],
+#         "value": int(item["amount"], 0),
+#         "gas": 200000,
+#         "gasPrice": 1000000000
+#     })
 
-for index, tx in enumerate(transactions):
-    signed_tx = web3.eth.account.signTransaction(tx, sender_private_key)
-    sent_hash = web3.eth.sendRawTransaction(signed_tx.rawTransaction)
-    print(web3.toHex(sent_hash))
+# for index, tx in enumerate(transactions):
+#     signed_tx = web3.eth.account.signTransaction(tx, sender_private_key)
+#     sent_hash = web3.eth.sendRawTransaction(signed_tx.rawTransaction)
+#     print(web3.toHex(sent_hash))
 
 # print(transactions)
 
