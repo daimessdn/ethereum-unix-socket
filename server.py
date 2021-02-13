@@ -3,6 +3,9 @@ import socket
 import sys
 import os
 
+# init'd empty connection and client node
+conn, client = None, None    
+
 try:
     # get a pathname variable from second argument of program
     pathname = sys.argv[1]
@@ -20,23 +23,27 @@ try:
     print("Creating socket with pathname: %s" % pathname)
     s.listen(1)
 
-    conn, client = None, None    
-
     # waiting for incoming client
     print("\nWaiting for connection...")
     while True:
         # accepting incoming client
+        ## if the client is not connected yet
         if (not conn and not client):
             conn, client = s.accept()
             print("Connected to client.")
+            
+        # interaction with client
         else:
             data = conn.recv(1024)
 
             if ("" != data.decode("utf-8")):
                 print("Getting data from client: %s" % data.decode("utf-8"))
+
+            # in case if client is disconneted
             else:
                 conn.close()
                 conn, client = None, None
+                print("\nConnection closed. Waiting for another client...")
 
 # in case the arguments is not valid
 except IndexError:
@@ -46,7 +53,11 @@ except IndexError:
 # exiting program by keyboard input
 except KeyboardInterrupt:
     print("Shutting down server.")
-    conn.close()
+    if (None != conn and None != client):
+        conn.close()
+
+    os.remove(pathname)
 
 finally:
-    conn.close()
+    if (None != conn and None != client):
+        conn.close()
