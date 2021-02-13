@@ -28,8 +28,10 @@ try:
 
 # in case the arguments is not valid
 except IndexError:
-    print("Invalid arguments (need <pathname> value)")
-    print("$ python3 client.py <pathname>")
+    print("Invalid argument (need \033[93m\33[1m<pathname>\33[0m\33[0m value)")
+
+    print("\nIt should be")
+    print("python3 server.py \033[93m\33[1m<pathname>\33[0m\33[0m")
 
 # exiting program by keyboard input
 except KeyboardInterrupt:
