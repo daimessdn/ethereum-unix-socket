@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # import libraries
 import socket
 import sys
