@@ -29,7 +29,6 @@ try:
                 s.send(data.encode("utf-8"))
 
                 signed_tx = s.recv(1024)
-
                 print("<< %s" % signed_tx.decode('utf-8'))
             
             else:
