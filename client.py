@@ -4,6 +4,7 @@
 import socket
 import sys
 import os
+import json
 
 try:
     # get a pathname variable from second argument of program
@@ -18,12 +19,21 @@ try:
         s.connect(pathname)
 
         while True:
-            data = str(input("> "))
+            # get JSON input
+            data = str(input("\n>> "))
 
+            # if the input is not empty,
+            ## it will send data in JSON to the server
             if ("" != data):
+                data = json.dumps(data)
                 s.send(data.encode("utf-8"))
+
+                signed_tx = s.recv(1024)
+
+                print("<< %s" % signed_tx.decode('utf-8'))
             
             else:
+                print("Shutting down...")
                 break
 
 # in case the arguments is not valid

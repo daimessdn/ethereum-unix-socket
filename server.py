@@ -1,9 +1,44 @@
 #!/usr/bin/env python3
 
 # import libraries
+from web3 import Web3
 import socket
 import sys
 import os
+import json
+
+# init'd Web3 instance to infura URL
+## add Infura URL with Rinkeby testnet endpoint
+infura_url = "https://rinkeby.infura.io/v3/5305a065632e4688b0f97c021bc6aac2"
+web3 = Web3(Web3.HTTPProvider(infura_url))
+
+def generate_private_key(address):
+    f = open(".%s.txt" % address, "r")
+    private_key = f.read()
+    f.close()
+    return private_key
+
+# define function for create and sign transaction
+def make_signed_tx(data):
+    """
+    Function for construct and sign transaction
+    input: dict:data (id, type, from_address, to_address, amount)
+    output: dict:data (id, tx)
+    """
+    data = json.loads(data)
+
+    tx = {
+        "from": data["from_address"],
+        "to": data["to_address"],
+        "value": int(data["amount"], 0),
+        "gas": 200000,
+        "gasPrice": 1000000000,
+        "nonce": web3.eth.getTransactionCount(data["from_address"])
+    }
+
+    signed_tx = web3.eth.account.signTransaction(tx, generate_private_key(tx["from"]))
+
+    return { "id": data["id"], "tx": web3.toHex(signed_tx.rawTransaction) }
 
 # init'd empty connection and client node
 conn, client = None, None    
@@ -39,13 +74,19 @@ try:
             data = conn.recv(1024)
 
             if ("" != data.decode("utf-8")):
-                print("Getting data from client: %s" % data.decode("utf-8"))
+                data = data.decode("utf-8")
+                print("Getting data from client:\n%s" % data)
+
+                json_data = json.loads(data)
+                signed_tx_data = make_signed_tx(json_data)
+
+                conn.send(json.dumps(signed_tx_data).encode("utf-8"))
 
             # in case if client is disconneted
             else:
                 conn.close()
                 conn, client = None, None
-                print("\nConnection closed. Waiting for another client...")
+                print("\nConnection closed. Waiting for incoming client...")
 
 # in case the arguments is not valid
 except IndexError:
