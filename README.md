@@ -2,6 +2,14 @@
 
 **ethereum-unix-socket** is an UNIX-domain-socket-based program for Ethereum transaction.
 
+## how it works
+This program uses **UNIX domain socket**, the way we can used for communicate through filesystem (specific pathname) on the single host. There is `server.py` (shortcut: `vault`) which processes data to generate **signed hash Ethereum transaction** based on client input, and `input.py` which received some input to be sent into server.
+
+## program assumptions
+- Every input object has the same `type` properties: `sign_transfer`
+- Every input object has the same `from_address` (sender wallet address). In this case, I'm currently using `0xACa20B87dAEFe8a89f80E15493609bE116c8efc5` as a wallet address.
+- Because signing transaction requires private key and private key is sensitive, I created the hidden file with filename `.<sender-address>.txt`. You can see the file by typing `ls -la` for displaying all files (including hidden).
+
 ## languages feature(s)
 Python 3
 
@@ -16,17 +24,24 @@ pip install -r requirements.txt
 ```
 
 ## basic operation
-- Run the UDS server, where `<pathname>` is required.
+
+### Run the UDS server, where `<pathname>` is required.
 
 ```bash
 python3 server.py <pathname>
 ```
+
 or
+
 ```bash
 ./vault <pathname>
 ```
 
-- Run the UDS client to interact with UDS server with the same `<pathname>` as `server.py` or `vault`.
+### Run the UDS client
+You can run the UDS client to interact with UDS server with the same `<pathname>` as `server.py` or `vault` after the socket is `started`.
+
 ```bash
 python3 client.py <pathname>
 ```
+
+After starting `client.py`, you can input some string input (using JSON format) to be processed (generate signed hash output) in server.

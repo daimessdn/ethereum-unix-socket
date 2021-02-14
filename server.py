@@ -73,18 +73,17 @@ try:
         else:
             data = conn.recv(1024)
 
-            if ("" != data.decode("utf-8")):
-                data = data.decode("utf-8")
-                print("\nGetting data from client. Signing a transaction...")
+            data = data.decode("utf-8")
+            print("\nGetting data from client. Signing a transaction...")
 
-                # convert data into dictionary
-                ## then construct a signed transaction
-                ## to be sent to client
-                json_data = json.loads(data)
-                signed_tx_data = make_signed_tx(json_data)
+            # convert data into dictionary
+            ## then construct a signed transaction
+            ## to be sent to client
+            json_data = json.loads(data)
+            signed_tx_data = make_signed_tx(json_data)
 
-                print("Transcation signed and has been sent into client. Ready to receive a next input...")
-                conn.send(json.dumps(signed_tx_data).encode("utf-8"))
+            print("Transcation signed and has been sent into client. Ready to receive a next input...")
+            conn.send(json.dumps(signed_tx_data).encode("utf-8"))
 
             # in case if client is disconneted
             else:
