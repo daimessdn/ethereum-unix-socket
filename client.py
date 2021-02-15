@@ -6,6 +6,8 @@ import sys
 import os
 import json
 
+txs = []
+
 try:
     # get a pathname variable from second argument of program
     pathname = sys.argv[1]
@@ -19,7 +21,7 @@ try:
         s.connect(pathname)
 
         while True:
-            # get JSON input
+            # get transaction input
             data = str(input("\n>> "))
 
             # if the input is not empty,
