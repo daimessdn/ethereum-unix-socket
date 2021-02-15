@@ -26,14 +26,6 @@ try:
             # get JSON input
             print("\n>> %s" % tx.replace("\n", ""))
 
-            # sending transaction to server
-            tx = json.dumps(tx)
-            s.send(tx.encode("utf-8"))
-
-            # receiving signed hash output from server
-            signed_tx = s.recv(1024)
-            print("<< %s" % signed_tx.decode('utf-8'))
-
 # in case the arguments is not valid
 except IndexError:
     print("Invalid argument (\033[93m\33[1m<pathname>\33[0m\33[0m value required)")

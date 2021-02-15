@@ -13,12 +13,20 @@ infura_url = "https://rinkeby.infura.io/v3/5305a065632e4688b0f97c021bc6aac2"
 web3 = Web3(Web3.HTTPProvider(infura_url))
 
 def generate_private_key(address):
-    f = open(".%s.txt" % address, "r")
-    private_key = f.read()
-    f.close()
+    """
+    Generate private key of address using file
+    with the same address name
+    """
+    with open(".%s.txt" % address, "r") as f:
+       private_key = f.read()
+
     return private_key
 
 def estimate_gas(tx):
+    """
+    Get estimated gas usage
+    """
+
     return web3.eth.estimateGas(tx)
 
 # define function for create and sign transaction
@@ -40,9 +48,9 @@ def make_signed_tx(data):
         "nonce": web3.eth.getTransactionCount(data["from_address"])
     }
 
-    # # check for gas usage and gas price
-    # print(estimate_gas(tx))
-    # print(web3.eth.gasPrice)
+    # resolved tx value by fee subtraction
+    tx_fee = estimate_gas(tx) * web3.eth.gasPrice
+    tx["value"] -= tx_fee
 
     signed_tx = web3.eth.account.signTransaction(tx, generate_private_key(tx["from"]))
 
