@@ -48,5 +48,6 @@ except IndexError:
 except KeyboardInterrupt:
     print("Done.")
 
+# connection not found case
 except ConnectionRefusedError:
     print("Connection not exists, exiting program...")
