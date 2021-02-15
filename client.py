@@ -18,22 +18,13 @@ try:
         print("Connecting to socket with pathname: %s" % pathname)
         s.connect(pathname)
 
-        while True:
+        # get collections of objects file
+        ## in transaction_input.txt
+        tx_file = open("transaction_input.txt", "r")
+
+        for tx in tx_file:
             # get JSON input
-            data = str(input("\n>> "))
-
-            # if the input is not empty,
-            ## it will send data in JSON to the server
-            if ("" != data):
-                data = json.dumps(data)
-                s.send(data.encode("utf-8"))
-
-                signed_tx = s.recv(1024)
-                print("<< %s" % signed_tx.decode('utf-8'))
-            
-            else:
-                print("Shutting down...")
-                break
+            print("\n>> %s" % tx.replace("\n", ""))
 
 # in case the arguments is not valid
 except IndexError:
@@ -46,5 +37,6 @@ except IndexError:
 except KeyboardInterrupt:
     print("Done.")
 
+# connection not found case
 except ConnectionRefusedError:
     print("Connection not exists, exiting program...")

@@ -26,6 +26,7 @@ def estimate_gas(tx):
     """
     Get estimated gas usage
     """
+
     return web3.eth.estimateGas(tx)
 
 # define function for create and sign transaction
@@ -37,15 +38,17 @@ def make_signed_tx(data):
     """
     data = json.loads(data)
 
+    # init'd transaction
     tx = {
         "from": data["from_address"],
         "to": data["to_address"],
         "value": int(data["amount"], 0),
-        "gas": 200000,
+        "gas": 2000000,
         "gasPrice": 1000000000,
         "nonce": web3.eth.getTransactionCount(data["from_address"])
     }
 
+    # resolved tx value by fee subtraction
     tx_fee = estimate_gas(tx) * web3.eth.gasPrice
     tx["value"] -= tx_fee
 
@@ -88,11 +91,15 @@ try:
 
             if ("" != data.decode("utf-8")):
                 data = data.decode("utf-8")
-                print("Getting data from client:\n%s" % data)
+                print("\nGetting data from client. Signing a transaction...")
 
+                # convert data into dictionary
+                ## then construct a signed transaction
+                ## to be sent to client
                 json_data = json.loads(data)
                 signed_tx_data = make_signed_tx(json_data)
 
+                print("Transcation signed and has been sent into client. Ready to receive a next input...")
                 conn.send(json.dumps(signed_tx_data).encode("utf-8"))
 
             # in case if client is disconneted
