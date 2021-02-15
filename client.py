@@ -6,6 +6,8 @@ import sys
 import os
 import json
 
+txs = []
+
 try:
     # get a pathname variable from second argument of program
     pathname = sys.argv[1]
@@ -18,13 +20,22 @@ try:
         print("Connecting to socket with pathname: %s" % pathname)
         s.connect(pathname)
 
-        # get collections of objects file
-        ## in transaction_input.txt
-        tx_file = open("transaction_input.txt", "r")
+        while True:
+            # get transaction input
+            data = str(input("\n>> "))
 
-        for tx in tx_file:
-            # get JSON input
-            print("\n>> %s" % tx.replace("\n", ""))
+            # if the input is not empty,
+            ## it will send data in JSON to the server
+            if ("" != data):
+                data = json.dumps(data)
+                s.send(data.encode("utf-8"))
+
+                signed_tx = s.recv(1024)
+                print("<< %s" % signed_tx.decode('utf-8'))
+            
+            else:
+                print("Shutting down...")
+                break
 
 # in case the arguments is not valid
 except IndexError:
