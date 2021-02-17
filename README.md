@@ -1,8 +1,11 @@
 # ethereum-unix-socket
 
-![ethereum-unix-socket](demo.gif)
+| [how it works](#how-it-works) | [some correcton notes](#some-correction-notes) | [some notes before start](#some-notes-before-start) | [languages feature(s)](#language-features) | [package dependencies](#package-dependencies) | [first setup](#first-setup) | [basic operation](#basic-operation)
+
 
 **ethereum-unix-socket** is an UNIX-domain-socket-based program for Ethereum transaction.
+
+![ethereum-unix-socket](demo.gif)
 
 ## how it works
 This program uses **UNIX domain socket**, the way we can used for communicate through filesystem (specific pathname) on the single host. There is `server.py` (shortcut: `vault`) which processes data to generate **signed hash Ethereum transaction** based on client input, and `client.py` which receives some input from file to be sent into server.
