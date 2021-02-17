@@ -7,6 +7,11 @@
 ## how it works
 This program uses **UNIX domain socket**, the way we can used for communicate through filesystem (specific pathname) on the single host. There is `server.py` (shortcut: `vault`) which processes data to generate **signed hash Ethereum transaction** based on client input, and `client.py` which receives some input from file to be sent into server.
 
+## some correction notes
+- Realizing that every single stream has not fixed size, I created some reading-loop-process to make sure that all single line is read until the new line from input.
+- Realizing that the transaction fees has to be already included, I've calculated the transaction fee based on `eth_gasPrice` and `eth_estimateGas` and resolved it into value subtraction (`value` -= (`eth_gasPrice` * `eth_estimate_gas`))
+- I'm still confused since I intended to process **multiple line of transactions** (for instance, we have transaction **input from file**). Since the program is intended to construct a transaction signature without being broadcasted yet, I might be think to add some **entry number** from 0 (to be added by `nonce`) to make sure all multiple transactions can be broadcasted sequentially. But we have to restart the client socket once if the `signed_tx` has already been broadcasted (because the transaction count is updated on the network).
+
 ## some notes before start
 - All input data are assumed to be valid containing `id`:`int`, `type`:`string`, `from_address`:`string`, `to_address`:`string`, and `amount`:`string` to make valid output data containing `id`:`int` and `tx`:`string`.
 - Every input object has the same `type` properties by value: `sign_transfer`.
