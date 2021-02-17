@@ -22,16 +22,30 @@ try:
 
         while True:
             # get transaction input
+            ## when the enter is pressed, the input will be sent into server.
             data = str(input("\n>> "))
 
             # if the input is not empty,
             ## it will send data in JSON to the server
             if ("" != data):
+                # sending data input
                 data = json.dumps(data)
-                s.send(data.encode("utf-8"))
+                s.sendall(data.encode("utf-8"))
 
-                signed_tx = s.recv(1024)
-                print("<< %s" % signed_tx.decode('utf-8'))
+                # receiving signed transaction
+                ## init'd empty data
+                signed_tx = ""
+                data_reading = True
+
+                ## reading received signed_tx until there are no data
+                while data_reading:
+                    data_recv = s.recv(16).decode("utf-8")
+                    signed_tx += data_recv
+
+                    if (len(data_recv) < 16):
+                        data_reading = False
+
+                print("<< %s" % signed_tx)
             
             else:
                 print("Shutting down...")

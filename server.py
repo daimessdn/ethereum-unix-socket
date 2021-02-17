@@ -39,21 +39,31 @@ def make_signed_tx(data):
     data = json.loads(data)
 
     # init'd transaction
+    ## redefined the Ethereum value into wei standard
+    ## in each parameter. gas and gasPrice are assumed to be fixed value
+    gas_usage = web3.toWei(2, "gwei")
+    gas_price = web3.toWei(0.0001, "gwei")
+    tx_value = int(data["amount"], 0)
+
+    ## applied the value conversion in tx dictionary
     tx = {
         "from": data["from_address"],
         "to": data["to_address"],
-        "value": int(data["amount"], 0),
-        "gas": 2000000,
-        "gasPrice": 1000000000,
+        "value": tx_value,
+        "gas": gas_usage,
+        "gasPrice": gas_price,
         "nonce": web3.eth.getTransactionCount(data["from_address"])
     }
 
+
     # resolved tx value by fee subtraction
-    tx_fee = estimate_gas(tx) * web3.eth.gasPrice
+    tx_fee = (estimate_gas(tx) * web3.eth.gasPrice)
     tx["value"] -= tx_fee
 
+    # get the signed transaction
     signed_tx = web3.eth.account.signTransaction(tx, generate_private_key(tx["from"]))
 
+    # return id and transaction object 
     return { "id": data["id"], "tx": web3.toHex(signed_tx.rawTransaction) }
 
 # init'd empty connection and client node
@@ -87,10 +97,20 @@ try:
             
         # interaction with client
         else:
-            data = conn.recv(1024)
+            # receiving transaction from client
+            ## init'd empty data
+            data = ""
+            data_reading = True
 
-            if ("" != data.decode("utf-8")):
-                data = data.decode("utf-8")
+            ## reading received data until there are no data
+            while data_reading:
+                data_recv = conn.recv(16).decode("utf-8")
+                data += data_recv
+
+                if (len(data_recv) < 16):
+                    data_reading = False
+
+            if ("" != data):
                 print("\nGetting data from client. Signing a transaction...")
 
                 # convert data into dictionary
@@ -99,8 +119,9 @@ try:
                 json_data = json.loads(data)
                 signed_tx_data = make_signed_tx(json_data)
 
+                # sending signed transaction to client
                 print("Transcation signed and has been sent into client. Ready to receive a next input...")
-                conn.send(json.dumps(signed_tx_data).encode("utf-8"))
+                conn.sendall(json.dumps(signed_tx_data).encode("utf-8"))
 
             # in case if client is disconneted
             else:
