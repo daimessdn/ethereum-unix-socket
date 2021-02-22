@@ -43,7 +43,7 @@ def make_signed_tx(data, entry):
     ## in each parameter. gas and gasPrice are assumed to be fixed value
     gas_usage = web3.toWei(0.002, "gwei")
     gas_price = web3.toWei(1, "gwei")
-    tx_value = int(data["amount"])
+    tx_value = web3.toWei(data["amount"], "ether") # eth amount to wei
 
     ## applied the value conversion in tx dictionary
     tx = {
@@ -112,11 +112,14 @@ try:
 
             ## reading received data until there are no data
             while data_reading:
-                data_recv = conn.recv(1024).decode("utf-8")
+                data_recv = conn.recv(64).decode("utf-8")
                 data += data_recv
 
-                if (len(data_recv) < 1024):
+                if (len(data_recv) < 64):
                     data_reading = False
+
+                # print(data)
+            print("\n" in data)
 
             if ("" != data):
                 print("\nGetting data from client. Signing a transaction...")

@@ -24,7 +24,7 @@ try:
             # get transaction input
             ## when the enter is pressed, the input will be sent into server.
             data = str(input("\nInput transaction:\n>> "))
-
+ 
             # if the input is not empty,
             ## it will send data in JSON to the server
             if ("" != data):
@@ -39,12 +39,15 @@ try:
 
                 ## reading received signed_tx until there are no data
                 while data_reading:
-                    data_recv = s.recv(1024).decode("utf-8")
+                    data_recv = s.recv(64).decode("utf-8")
                     signed_tx += data_recv
 
-                    if (len(data_recv) < 1024):
+                    if (len(data_recv) < 64):
                         data_reading = False
+                    
+                    # print(signed_tx)
 
+                print("\n" in signed_tx)
                 print("<< %s" % signed_tx)
             
             else:
