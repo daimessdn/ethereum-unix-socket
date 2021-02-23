@@ -1,6 +1,6 @@
 program mistake
 
-1. id should be string format, not integer v
-2. I should also subtract the value by tx fees (gas * gasPrice) v
-3. I think that client command should be str input, not file input, termmintad with "\n" command.
-4. I think that the client should collect input first, then process it at once in server.
+1. id should be string format, not integer (v)
+2. I should also subtract the value by tx fees (gas * gasPrice) (v)
+3. I think that client command should be str input, not file input, termmintad with "\n" command. (v?)
+4. I think that the client should collect input first, then process it at once in server. (v)

@@ -4,13 +4,23 @@
 
 **ethereum-unix-socket** is an UNIX-domain-socket-based program for Ethereum transaction signature.
 
-![ethereum-unix-socket](demo.gif)
+![ethereum-unix-socket](demo2.gif)
 
 ## how it works
 
 [back to top](#ethereum-unix-socket)
 
 This program uses **UNIX domain socket**, the way we can used for communicate through filesystem (specific pathname) on the single host. There is `server.py` (shortcut: `vault`) which processes data to generate **signed hash Ethereum transaction** based on client input, and `client.py` which receives some input from file to be sent into server.
+
+- The program will receives transactions input (in string), **aggregates** all transactions input in single line separated by delimiter characters `\n`, and send them into server.
+  ```
+  {tx1}\n{tx2}\n{tx3}\n...
+  ```
+- Server receives all aggregates transaction, splits them based on the delimiter `\n`, and processes them into signed transactions, which will be aggreagated them in a single line separated by delimiter `\n` (same process in client), and send them to client.
+  ```
+  {signed_tx1}\n{signed_tx2}\n{signed_tx3}\n...
+  ```
+- Client receives the signed transactions aggregate and split them based on `\n` to be printed.
 
 [back to top](#ethereum-unix-socket)
 
