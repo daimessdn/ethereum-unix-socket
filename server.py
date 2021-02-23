@@ -17,6 +17,7 @@ def generate_private_key(address):
     Generate private key of address using file
     with the same address name
     """
+
     with open(".%s.txt" % address, "r") as f:
        private_key = f.read()
 
@@ -29,13 +30,13 @@ def estimate_gas(tx):
 
     return web3.eth.estimateGas(tx)
 
-# define function for create and sign transaction
 def make_signed_tx(data, entry):
     """
     Function for construct and sign transaction
     input: dict:data (id, type, from_address, to_address, amount)
     output: dict:data (id, tx)
     """
+
     data = json.loads(data)
 
     # init'd transaction
@@ -64,6 +65,57 @@ def make_signed_tx(data, entry):
 
     # return id and transaction object 
     return { "id": data["id"], "tx": web3.toHex(signed_tx.rawTransaction) }
+
+def recv_transaction_input():
+    """
+    Receiving transaction from client
+    """
+
+    ## init'd empty data
+    txs = ""
+    data_reading = True
+
+    ## reading received data until there are no data
+    while data_reading:
+        data_recv = conn.recv(180).decode("utf-8")
+        txs += data_recv
+
+        if (len(data_recv) < 180):
+            data_reading = False
+
+    return txs.split("\n")[:-1]
+
+def send_all_signed_tx(transactions):
+    """
+    Construct all tx into signed_tx
+    and then send them all into client
+    """
+
+    global nonce_entry
+
+    # init'd empty aggregate signed in string
+    str_signed_tx = ""
+
+    for index, tx_data in enumerate(transactions):
+        if (str_signed_tx != ""):
+            str_signed_tx += "\n"
+
+        print("Processing transaction (%d/%d)..." % (
+            index + 1,
+            len(transactions)))
+
+        # convert tx_data into dictionary
+        ## then construct a signed transaction
+        ## to be combined to cumulative results of tx hashes
+        object_tx = eval(tx_data)
+        signed_tx_data = make_signed_tx(object_tx, nonce_entry)
+        str_signed_tx += json.dumps(signed_tx_data)
+
+        # next entry will be +1
+        nonce_entry += 1
+
+    # sending signed transaction to client
+    conn.sendall(str_signed_tx.encode("utf-8"))
 
 # init'd empty connection and client node
 conn, client = None, None
@@ -105,37 +157,19 @@ try:
             
         # interaction with client
         else:
-            # receiving transaction from client
-            ## init'd empty data
-            data = ""
-            data_reading = True
+            transactions = recv_transaction_input()
 
-            ## reading received data until there are no data
-            while data_reading:
-                data_recv = conn.recv(64).decode("utf-8")
-                data += data_recv
 
-                if (len(data_recv) < 64):
-                    data_reading = False
-
-                # print(data)
-            print("\n" in data)
-
-            if ("" != data):
-                print("\nGetting data from client. Signing a transaction...")
-
-                # convert data into dictionary
-                ## then construct a signed transaction
-                ## to be sent to client
-                json_data = json.loads(data)
-                signed_tx_data = make_signed_tx(json_data, nonce_entry)
-
-                # sending signed transaction to client
-                print("Transcation signed and has been sent into client. Ready to receive a next input...")
-                conn.sendall(json.dumps(signed_tx_data).encode("utf-8"))
-
-                # next entry will be +1
-                nonce_entry += 1
+            # generate signed_txs and send them all into client if txs is not empty
+            if (len(transactions) > 0):
+                print("There %s %d %s will be processed..." % (
+                    "are" if len(transactions) != 1 else "is",
+                    len(transactions),
+                    "transactions" if len(transactions) != 1 else "transaction"
+                        ))
+                
+                send_all_signed_tx(transactions)
+                print("All transcations have been signed and sent into client. Ready to receive next input...")
 
             # in case if client is disconneted
             else:
@@ -161,6 +195,7 @@ except KeyboardInterrupt:
 
     os.remove(pathname)
 
+# close the connection
 finally:
     if (None != conn and None != client):
         conn.close()

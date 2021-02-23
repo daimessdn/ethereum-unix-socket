@@ -6,7 +6,45 @@ import sys
 import os
 import json
 
-txs = []
+def get_txs_input():
+    # get transaction input
+    ## when the blank entry is pressed, all txs will be sent into server.
+    data_input = True
+    data = ""
+
+    print("\nInput transaction (type blank for terminate):")
+    while data_input:
+        data_preinput = str(input(">> "))
+
+        if (data_preinput == ""):
+            data_input = False
+        else:
+            data += json.dumps(data_preinput) + "\n"
+
+    return data
+
+
+def receive_all_signed_tx():
+    """
+    Receives all signed transactions from server
+    """
+
+    # receiving signed transaction
+    ## init'd empty data
+    signed_tx = ""
+    data_reading = True
+
+    ## reading received signed_tx until there are no data
+    while data_reading:
+        data_recv = s.recv(180).decode("utf-8")
+        signed_tx += data_recv
+
+        if (len(data_recv) < 180):
+            data_reading = False
+
+    print("\nOutput data:")
+    for tx in signed_tx.split("\n"):
+        print(f"<< {tx}")
 
 try:
     # get a pathname variable from second argument of program
@@ -20,36 +58,24 @@ try:
         print("Connecting to socket with pathname: %s" % pathname)
         s.connect(pathname)
 
+
         while True:
-            # get transaction input
-            ## when the enter is pressed, the input will be sent into server.
-            data = str(input("\nInput transaction:\n>> "))
- 
+            transactions = get_txs_input()
+
             # if the input is not empty,
-            ## it will send data in JSON to the server
-            if ("" != data):
+            ## it will send all data transactions to server
+            if ("" != transactions):
                 # sending data input
-                data = json.dumps(data)
-                s.sendall(data.encode("utf-8"))
+                s.sendall(transactions.encode("utf-8"))
 
-                # receiving signed transaction
-                ## init'd empty data
-                signed_tx = ""
-                data_reading = True
+                print("\nAll transactions sent to server. Waiting for signed transactions received...")
 
-                ## reading received signed_tx until there are no data
-                while data_reading:
-                    data_recv = s.recv(64).decode("utf-8")
-                    signed_tx += data_recv
+                # receiving all signed transactions
+                receive_all_signed_tx()
 
-                    if (len(data_recv) < 64):
-                        data_reading = False
-                    
-                    # print(signed_tx)
+                print("\nReady for the next transactions input...")
 
-                print("\n" in signed_tx)
-                print("<< %s" % signed_tx)
-            
+            # terminated connection if there are no data input
             else:
                 print("Shutting down...")
                 break
