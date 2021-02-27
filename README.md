@@ -1,6 +1,6 @@
 # ethereum-unix-socket
 
-| [how it works](#how-it-works) | [some correcton notes](#some-correction-notes) | [some notes before start](#some-notes-before-start) | [languages feature(s)](#language-features) | [package dependencies](#package-dependencies) | [first setup](#first-setup) | [basic operation](#basic-operation)
+| [how it works](#how-it-works) | [some correcton notes](#some-correction-notes) | [some notes before start](#some-notes-before-start) | [languages feature(s)](#language-features) | [package dependencies](#package-dependencies) | [first setup](#first-setup) | [basic operation](#basic-operation) |
 
 **ethereum-unix-socket** is an UNIX-domain-socket-based program for Ethereum transaction signature.
 
