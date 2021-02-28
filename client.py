@@ -70,8 +70,6 @@ try:
 
                 print("\nAll transactions sent to server. Waiting for signed transactions received...")
 
-                transactions = get_txs_input()
-
                 # receiving all signed transactions
                 receive_all_signed_tx()
 
