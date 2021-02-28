@@ -55,7 +55,7 @@ try:
         s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 
         # connecting socket into existing socket with specific path
-        print("Connecting to socket with pathname: %s" % pathname)
+        print("Connected to socket with pathname: %s" % pathname)
         s.connect(pathname)
 
 
@@ -69,6 +69,8 @@ try:
                 s.sendall(transactions.encode("utf-8"))
 
                 print("\nAll transactions sent to server. Waiting for signed transactions received...")
+
+                transactions = get_txs_input()
 
                 # receiving all signed transactions
                 receive_all_signed_tx()
