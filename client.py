@@ -42,9 +42,7 @@ def receive_all_signed_tx():
         if (len(data_recv) < 180):
             data_reading = False
 
-    print("\nOutput data:")
-    for tx in signed_tx.split("\n"):
-        print(f"<< {tx}")
+    return signed_tx
 
 try:
     # get a pathname variable from second argument of program
@@ -58,8 +56,9 @@ try:
         print("Connected to socket with pathname: %s" % pathname)
         s.connect(pathname)
 
+        connection_loop = True
 
-        while True:
+        while connection_loop:
             transactions = get_txs_input()
 
             # if the input is not empty,
@@ -70,15 +69,25 @@ try:
 
                 print("\nAll transactions sent to server. Waiting for signed transactions received...")
 
+                recv_loop = True
+
                 # receiving all signed transactions
-                receive_all_signed_tx()
+                while recv_loop:
+                    signed_tx = receive_all_signed_tx()
+
+                    print(signed_tx)
+
+                    if (signed_tx != "SUCCESS!"):
+                        print("<< %s" % signed_tx)
+                    else:
+                        recv_loop = False
 
                 print("\nReady for the next transactions input...")
 
             # terminated connection if there are no data input
             else:
                 print("Shutting down...")
-                break
+                connection_loop = False
 
 # in case the arguments is not valid
 except IndexError:
