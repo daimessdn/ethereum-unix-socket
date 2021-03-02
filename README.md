@@ -4,7 +4,7 @@
 
 **ethereum-unix-socket** is an UNIX-domain-socket-based program for Ethereum transaction signature.
 
-![ethereum-unix-socket](demo2.gif)
+![ethereum-unix-socket](demo3.gif)
 
 ## how it works
 

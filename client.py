@@ -73,8 +73,6 @@ try:
                 while recv_loop:
                     signed_tx = recv_signed_tx()
 
-                    print(signed_tx)
-
                     # checking for 'SUCCESS!' signal for stop receiving messages
                     if (signed_tx != "SUCCESS!"):
                         print("<< %s" % signed_tx)
