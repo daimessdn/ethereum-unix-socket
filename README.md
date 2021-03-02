@@ -16,11 +16,8 @@ This program uses **UNIX domain socket**, the way we can used for communicate th
   ```
   {tx1}\n{tx2}\n{tx3}\n...
   ```
-- Server receives all aggregates transaction, splits them based on the delimiter `\n`, and processes them into signed transactions, which will be aggreagated them in a single line separated by delimiter `\n` (same process in client), and send them to client.
-  ```
-  {signed_tx1}\n{signed_tx2}\n{signed_tx3}\n...
-  ```
-- Client receives the signed transactions aggregate and split them based on `\n` to be printed.
+- Server receives all aggregates transaction, splits them based on the delimiter `\n`, and processes them into signed transactions and send them to client one by one.
+- Client receives the signed transactions to be printed.
 
 [back to top](#ethereum-unix-socket)
 
