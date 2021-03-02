@@ -7,12 +7,14 @@ import sys
 import os
 import json
 
-# import threading
+
+# init'd some constants
+ENCODING = "utf-8"
 
 # init'd Web3 instance to infura URL
 ## add Infura URL with Rinkeby testnet endpoint
-infura_url = "https://rinkeby.infura.io/v3/5305a065632e4688b0f97c021bc6aac2"
-web3 = Web3(Web3.HTTPProvider(infura_url))
+INFURA_URL = "https://rinkeby.infura.io/v3/5305a065632e4688b0f97c021bc6aac2"
+web3 = Web3(Web3.HTTPProvider(INFURA_URL))
 
 def generate_private_key(address):
     """
@@ -32,7 +34,7 @@ def estimate_gas(tx):
 
     return web3.eth.estimateGas(tx)
 
-def make_signed_tx(data, entry):
+def send_signed_tx(data, entry):
     """
     Function for construct and sign transaction
     input: dict:data (id, type, from_address, to_address, amount)
@@ -64,10 +66,11 @@ def make_signed_tx(data, entry):
 
     # get the signed transaction
     signed_tx = web3.eth.account.signTransaction(tx, generate_private_key(tx["from"]))
-    signed_tx_result = json.dumps({ "id": data["id"], "tx": web3.toHex(signed_tx.rawTransaction) })
 
-    # return id and transaction object 
-    conn.sendall(signed_tx_result.encode("utf-8")) 
+    # generate id and transaction JSON object
+    ## and send that to client
+    signed_tx_result = json.dumps({ "id": data["id"], "tx": web3.toHex(signed_tx.rawTransaction) })
+    conn.sendall(signed_tx_result.encode(ENCODING)) 
 
 def recv_transaction_input():
     """
@@ -80,7 +83,7 @@ def recv_transaction_input():
 
     ## reading received data until there are no data
     while data_reading:
-        data_recv = conn.recv(180).decode("utf-8")
+        data_recv = conn.recv(180).decode(ENCODING)
         txs += data_recv
 
         if (len(data_recv) < 180):
@@ -108,14 +111,10 @@ def send_all_signed_tx(transactions):
         ## then construct a signed transaction
         ## to be combined to cumulative results of tx hashes
         object_tx = eval(tx_data)
-        signed_tx_data = make_signed_tx(object_tx, nonce_entry)
-        # str_signed_tx += json.dumps(signed_tx_data)
+        signed_tx_data = send_signed_tx(object_tx, nonce_entry)
 
         # next entry will be +1
         nonce_entry += 1
-
-    # sending signed transaction to client
-    # conn.sendall(str_signed_tx.encode("utf-8"))
 
 # init'd empty connection and client node
 conn, client = None, None
@@ -139,12 +138,13 @@ try:
     # bind the socket into pathname
     ## and make socket listening to incoming client
     s.bind(pathname)
-    print("Creating socket with pathname: %s" % pathname)
+    print("Created socket with pathname: %s." % pathname)
     s.listen(1)
 
     # waiting for incoming client
     print("\nWaiting for connection...")
-    while True:
+    connection_loop = True
+    while connection_loop:
         # accepting incoming client
         ## if the client is not connected yet
         if (not conn and not client):
@@ -157,12 +157,11 @@ try:
             
         # interaction with client
         else:
-
             transactions = recv_transaction_input()
 
             # generate signed_txs and send them all into client if txs is not empty
             if (len(transactions) > 0):
-                print("There %s %d %s will be processed..." % (
+                print("\nThere %s %d %s will be processed..." % (
                     "are" if len(transactions) != 1 else "is",
                     len(transactions),
                     "transactions" if len(transactions) != 1 else "transaction"
@@ -172,8 +171,9 @@ try:
 
                 print("All transcations have been signed and sent into client. Ready to receive next input...")
 
-                conn.send("SUCCESS!".encode("utf-8"))
-                
+                # send 'SUCCESS!' signal for client stop receiving transaction.
+                conn.send("SUCCESS!".encode(ENCODING))
+
             # in case if client is disconneted
             else:
                 conn.close()

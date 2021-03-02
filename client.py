@@ -23,8 +23,7 @@ def get_txs_input():
 
     return data
 
-
-def receive_all_signed_tx():
+def recv_signed_tx():
     """
     Receives all signed transactions from server
     """
@@ -54,10 +53,10 @@ try:
 
         # connecting socket into existing socket with specific path
         print("Connected to socket with pathname: %s" % pathname)
+
+        # begin connection with server
         s.connect(pathname)
-
         connection_loop = True
-
         while connection_loop:
             transactions = get_txs_input()
 
@@ -67,16 +66,16 @@ try:
                 # sending data input
                 s.sendall(transactions.encode("utf-8"))
 
-                print("\nAll transactions sent to server. Waiting for signed transactions received...")
+                print("\nAll transactions sent to server. Waiting for signed transactions received...\n")
 
+                # looping process to receive all signed transactions
                 recv_loop = True
-
-                # receiving all signed transactions
                 while recv_loop:
-                    signed_tx = receive_all_signed_tx()
+                    signed_tx = recv_signed_tx()
 
                     print(signed_tx)
 
+                    # checking for 'SUCCESS!' signal for stop receiving messages
                     if (signed_tx != "SUCCESS!"):
                         print("<< %s" % signed_tx)
                     else:
